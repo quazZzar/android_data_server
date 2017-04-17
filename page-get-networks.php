@@ -2,7 +2,6 @@
 /*
 Template Name: Get JSON Networks
 */
- get_header(); 
 
 $terms = get_terms( 'pharmacy_tax', array(
 	'hide_empty' => true,
@@ -34,5 +33,3 @@ endforeach;
 
 $json_terms_array = json_encode($terms_array);
 echo $json_terms_array;
-
- get_footer();

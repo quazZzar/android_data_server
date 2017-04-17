@@ -52,7 +52,7 @@ TT_ENQUEUE::add_js(array('jquery-form'));
 ?>
 
 
-<?php
+<?php //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Network{
 	public $net_id;
 	public $net_name;
@@ -78,8 +78,9 @@ class Pharmacy{
 	public $website;
 	public $opening_at;
 	public $closing_at;
+	public $distance;
 
-	public function __construct($id, $name, $street, $latitude, $longitude, $phone, $email, $website,$opening, $closing){
+	public function __construct($id, $name, $street, $latitude, $longitude, $phone, $email, $website,$opening, $closing, $distance="?? m"){
 		$this->phar_id = $id;
 		$this->phar_name = $name;
 		$this->street = $street;
@@ -90,5 +91,36 @@ class Pharmacy{
 		$this->website = $website;
 		$this->opening_at = $opening;
 		$this->closing_at = $closing;
+		$this->distance = $distance;
 	}
+}
+
+
+function get_the_distance($or_lat, $or_long, $dest_lat, $dest_long){
+	$curl = curl_init();
+	curl_setopt_array($curl, array(
+	CURLOPT_URL => "https://maps.googleapis.com/maps/api/directions/json?origin=".$or_lat.",".$or_long."&destination=".$dest_lat.",".$dest_long."&key=AIzaSyCnjCTk-fTAVxyPADepxbBvTEdFt1qZ0qA",
+	CURLOPT_RETURNTRANSFER => true,
+	CURLOPT_ENCODING => "",
+	CURLOPT_MAXREDIRS => 10,
+	CURLOPT_TIMEOUT => 30,
+	CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	CURLOPT_CUSTOMREQUEST => "GET"
+	));
+
+	$response = curl_exec($curl);
+	$err = curl_error($curl);
+
+	curl_close($curl);
+
+	if ($err) {
+		echo "cURL Error #:" . $err;
+		$distance = 0;
+	} else {
+		$decoder = json_decode($response);
+		$encoder = json_encode($decoder, JSON_UNESCAPED_SLASHES);
+		$final_decoder = json_decode($encoder);
+		$distance = $final_decoder->routes[0]->legs[0]->distance->text;
+	}
+	return $distance;
 }
